@@ -3,6 +3,14 @@ import { ref, computed } from 'vue'
 
 const isFinished = ref(false)
 
+const selectedCell = ref(null)
+
+const form = ref({
+  className: '',
+  number: '',
+  answer: ''
+})
+
 const words = [
   '隣の人に名前を聞く',
   '出身地を聞く',
@@ -148,8 +156,26 @@ function initializeBoard() {
 function toggleCell(index) {
   if (index === 12) return
 
-  cells.value[index].checked =
-    !cells.value[index].checked
+  selectedCell.value = index
+
+  form.value = {
+    className: '',
+    number: '',
+    answer: ''
+  }
+}
+
+function saveCell() {
+
+  const cell = cells.value[selectedCell.value]
+
+  cell.checked = true
+
+  cell.partnerClass = form.value.className
+  cell.partnerNumber = form.value.number
+  cell.answer = form.value.answer
+
+  selectedCell.value = null
 }
 
 const bingoCount = computed(() => {
@@ -286,6 +312,39 @@ initializeBoard()
 
 </div>
 
+<div
+  v-if="selectedCell !== null"
+  class="modal"
+>
+
+  <div class="modal-content">
+
+    <h2>
+      {{ cells[selectedCell].text }}
+    </h2>
+
+    <input
+      v-model="form.className"
+      placeholder="相手の組"
+    >
+
+    <input
+      v-model="form.number"
+      placeholder="相手の番号"
+    >
+
+    <textarea
+      v-model="form.answer"
+      placeholder="相手の回答"
+    ></textarea>
+
+    <button @click="saveCell">
+      記録する
+    </button>
+
+  </div>
+
+</div>
 
 </template>
 
@@ -524,6 +583,37 @@ h1 {
 
 .result-btn {
   background: gold;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+
+  background: rgba(0,0,0,.5);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+
+  padding: 30px;
+
+  border-radius: 20px;
+
+  width: 400px;
+
+  display: flex;
+  flex-direction: column;
+
+  gap: 15px;
+}
+
+.modal-content input,
+.modal-content textarea {
+  padding: 10px;
 }
 
 </style>
